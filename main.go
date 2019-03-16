@@ -81,12 +81,12 @@ func countdown() {
 }
 
 func playSuperhero() {
-	var remainingIndexValues = [len(superHeroes)]int {}
+	var remainingIndexValues = []int {}
 	var correctAnswers = 0
 	rand.Seed(time.Now().UnixNano())	//without this, the environment won't actually generate random numbers each game, and it will generate the same ones instead.
 
-	for i := 0; i < len(superHeroes); i++	{
-		remainingIndexValues[i] = i 
+	for i := 0; i < len(superHeroes) - 1; i++	{
+		remainingIndexValues = append(remainingIndexValues, i)
 	}
 
 	fmt.Println("Playing Category: Superheroes")
@@ -104,7 +104,6 @@ func playSuperhero() {
 				line := descriptiveWords[rand.Intn(len(descriptiveWords))]
 				for x := 0; x < len(descriptiveWordsPrint); x++	{
 					if (strings.Compare(descriptiveWordsPrint[x], line) == 0)	{
-						fmt.Println(descriptiveWordsPrint)
 						break	//breaks out of this loop, and the infinite for loop will continue.
 					}
 					if (x == 2)	{	//the line is unique, and can be added to descriptiveWordsPrint
@@ -119,17 +118,27 @@ func playSuperhero() {
 				}
 			}
 
-			for j := range descriptiveWordsPrint {
-				if (j != 2)	{
-					fmt.Print(descriptiveWordsPrint[j] + ", ")
+			for x := range descriptiveWordsPrint {
+				if (x != 2)	{
+					fmt.Print(descriptiveWordsPrint[x] + ", ")
 				} else {
-					fmt.Println(descriptiveWordsPrint[j])
+					fmt.Println(descriptiveWordsPrint[x])
 				}
 			}
 			reader := bufio.NewReader(os.Stdin)
 			userAnswer, error := reader.ReadString('\n')
 			if (error == nil)	{
-				fmt.Println(userAnswer)
+				if (userAnswer == "correct\r\n")	{	//TODO: obviously replace correct with if the userAnswer matches answers from superheroes array.
+					fmt.Println(userAnswer)
+					for x := 0; x < len(remainingIndexValues); x++ {	//deletes randomIndexValue number from the remainingIndexValues.
+						if (remainingIndexValues[x] == randomIndexValue)	{
+							remainingIndexValues[x] = remainingIndexValues[len(remainingIndexValues) - 1]
+							remainingIndexValues[len(remainingIndexValues) - 1] = -1	//-1 will ensure randomIndexValue cannot choose this.
+							remainingIndexValues = remainingIndexValues[:len(remainingIndexValues) - 1]
+						}
+					}
+					fmt.Println(remainingIndexValues)
+				}
 			}
 		}
 	}()
