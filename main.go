@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"time"
 )
 
 var categories = [2]string {
@@ -23,7 +24,7 @@ var superHeroes = [4][3]string {
 func main() {
 	categories := [2]string {
 		"SUPERHEROES", "WAIFUS" }
-	fmt.Println("Hi, welcome to Duc's 'Go Guessing Game'! The available categories to play are:")
+	fmt.Println("Hi, welcome to Duc's 'Go Guessing Game'! You have 1 minute to guess the character from 3 short descriptions.\nThe available categories to play are:")
 	printCategories(categories)
 	fmt.Println("Type in a category below and press enter to play.")
 	scanUserCategory()
@@ -57,8 +58,27 @@ func scanUserCategory()	{
 	}
 }
 
+func countdown() {
+	countdownTime := 5
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop() //function stops after the surrounding function completes
+	go func() {
+		for {
+			select {
+			case <- ticker.C:
+				fmt.Println(countdownTime)
+				countdownTime--
+			}
+		}
+	}()
+
+	time.Sleep(5 * time.Second)	//TODO: sometimes prints 1, sometimes doesn't.
+	ticker.Stop()
+}
+
 func playSuperhero() {
-	fmt.Println("Playing as Superhero")
+	fmt.Println("Playing Category: Superheroes")
+	countdown()
 }
 
 func playWaifu() {
