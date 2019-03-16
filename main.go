@@ -6,20 +6,20 @@ import (
 	"os"
 	"strings"
 	"time"
+	"math/rand"
 )
 
 var categories = [2]string {
 	"SUPERHEROES", "WAIFUS",
 }
 var superHeroes = [4][3]string {
-	{"SuperHeroes", "Descriptions", "Possible Answers"},
-	{"Spider-Man", "Great Responsibility|Dead Uncle|'He's a Menace!'|Red, Blue and Black|Friendly Neighbourhood|Queens|Marvel", "Spider-Man|Spiderman|Peter Parker"},
+	{"Spider-Man", "Great Responsibility|Dead Uncle|'He's a Menace!'|Red Blue and Black|Friendly Neighbourhood...|Queens|Marvel", "Spider-Man|Spiderman|Peter Parker"},
 	{"The Flash", "Red|Fast|Speedforce|DC|Forensic Scientist", "The Flash|Flash|Barry Allen|BarryAllen|Barry-Allen"},
 	{"Batman", "World's Greatest Detective|Bats|League of Shadows|Utility Belt|DC|Billionaire", "Batman|Bruce Wayne|Bruce-Wayne|BruceWayne"},
 }
 //make sure to trim their answer so that 'Bat man' and 'Batman' will equal.
 //First index determines which superhero, second index determines what property.
-//For 2nd index, "Name Of Hero", "Hint1|Hint2|Hint3|Hint4|Hint5, etc.", "Possible Answers", 
+//For 2nd array, "Name Of Hero", "Hint1|Hint2|Hint3|Hint4|Hint5, etc.", "Possible Answers", 
 
 func main() {
 	categories := [2]string {
@@ -59,26 +59,89 @@ func scanUserCategory()	{
 }
 
 func countdown() {
-	countdownTime := 5
+	countdownTime := 3
 	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop() //function stops after the surrounding function completes
 	go func() {
 		for {
 			select {
 			case <- ticker.C:
+				if (countdownTime == 0)	{
+					//do nothing, allow a second of no countdown to make console output look smoother
+				} else {
 				fmt.Println(countdownTime)
 				countdownTime--
+				}
 			}
 		}
 	}()
 
-	time.Sleep(5 * time.Second)	//TODO: sometimes prints 1, sometimes doesn't.
+	time.Sleep(4 * time.Second)	//TODO: sometimes prints 1, sometimes doesn't.
 	ticker.Stop()
+	return
 }
 
 func playSuperhero() {
+	var remainingIndexValues = [len(superHeroes)]int {}
+	var correctAnswers = 0
+	rand.Seed(time.Now().UnixNano())	//without this, the environment won't actually generate random numbers each game, and it will generate the same ones instead.
+
+	for i := 0; i < len(superHeroes); i++	{
+		remainingIndexValues[i] = i 
+	}
+
 	fmt.Println("Playing Category: Superheroes")
 	countdown()
+	
+	ticker := time.NewTicker(time.Second)
+
+	go func() {
+		for i := 0; i < len(superHeroes); i++	{
+			randomIndexValue := remainingIndexValues[rand.Intn(len(remainingIndexValues))]	//randomIndex can equal 0, 1, 2, 3. Purpose is to remove this from remainingIndexValues array after it is used.
+			descriptiveWords := strings.Split(superHeroes[randomIndexValue][1], "|")
+			descriptiveWordsPrint := [3]string{} //array that holds 3 strings that are each different from descriptiveWords array. Then, it prints out to console.
+			descriptiveWordsCounter := 0
+			for {
+				line := descriptiveWords[rand.Intn(len(descriptiveWords))]
+				for x := 0; x < len(descriptiveWordsPrint); x++	{
+					if (strings.Compare(descriptiveWordsPrint[x], line) == 0)	{
+						fmt.Println(descriptiveWordsPrint)
+						break	//breaks out of this loop, and the infinite for loop will continue.
+					}
+					if (x == 2)	{	//the line is unique, and can be added to descriptiveWordsPrint
+						descriptiveWordsPrint[descriptiveWordsCounter] = line
+						descriptiveWordsCounter++
+						break	//break out of x loop back to infinite loop, so that line can reset to a new line
+					}
+				}
+
+				if (descriptiveWordsCounter == 3) {	//break out of infinite loop, since I have 3 descriptive words.
+					break
+				}
+			}
+
+			for j := range descriptiveWordsPrint {
+				if (j != 2)	{
+					fmt.Print(descriptiveWordsPrint[j] + ", ")
+				} else {
+					fmt.Println(descriptiveWordsPrint[j])
+				}
+			}
+			reader := bufio.NewReader(os.Stdin)
+			userAnswer, error := reader.ReadString('\n')
+			if (error == nil)	{
+				fmt.Println(userAnswer)
+			}
+		}
+	}()
+
+	time.Sleep(3 * time.Second)	//leave at 5-10 seconds initially for debug purposes.
+	ticker.Stop()
+
+	if (correctAnswers == len(superHeroes))	{
+		fmt.Println("You got all of them correct! Good job!")
+	} else {
+		fmt.Println("You got ", correctAnswers, " correct. Better luck next time!")
+	}
 }
 
 func playWaifu() {
