@@ -12,10 +12,26 @@ import (
 var categories = [2]string {
 	"SUPERHEROES", "WAIFUS",
 }
-var superHeroes = [4][3]string {
-	{"Spider-Man", "Great Responsibility|Dead Uncle|'He's a Menace!'|Red Blue and Black|Friendly Neighbourhood...|Queens|Marvel", "SPIDER-MAN|SPIDERMAN|PETERPARKER"},
-	{"The Flash", "Red|Fast|Speedforce|DC|Forensic Scientist", "THE FLASH|FLASH|BARRYALLEN|BARRY-ALLEN"},
-	{"Batman", "World's Greatest Detective|Bats|League of Shadows|Utility Belt|DC|Billionaire", "BATMAN|BRUCE-WAYNE|BRUCEWAYNE"},
+var superHeroes = [19][3]string {
+	{"Spider-Man", "Great Responsibility|Dead Uncle|'He's a Menace!'|Red Blue and Black|Friendly Neighbourhood...|Queens", "SPIDERMAN|SPIDER-MAN|PETERPARKER"},
+	{"The Flash", "Red and Yellow|Fast|Speedforce|Justice-League|Fastest Man Alive", "THE FLASH|FLASH|BARRYALLEN|BARRY-ALLEN"},
+	{"Batman", "World's Greatest Detective|Bats|Utility Belt|Billionaire|Justice-League", "BATMAN|BRUCEWAYNE"},
+	{"Captain America", "Shield|America|Blue Red White|Super Soldier|Man out of Time|The First Avenger", "CAPTAINAMERICA|STEVEROGERS"},
+	{"Hulk", "SMASH!|Green|The Incredible...|Gamma Ray Exposure|'I'm always angry'", "HULK|THEHULK|BRUCEBANNER"},
+	{"Superman", "Krypton|Blue and Red|Justice-League|Man of Steel|Kryptonite", "SUPERMAN|CLARKKENT|KAL-EL"},
+	{"Green Lantern", "Green|Ring|Willpower|Hard-Light Construct|Lantern|Justice-League", "GREENLANTERN|GREEN-LANTERN|HALJORDAN"},
+	{"Wolverine", "Healing Factor|Adamantium|Mutant|Claws|X-Men", "WOLVERINE|LOGAN|HUGHJACKMAN"},
+	{"Thor", "God of Thunder|Mjolnir|Asgardian|Worthy|Avenger|Norse Mythology", "THOR"},
+	{"Iron Man", "Avenger|Billionaire Playboy|Suit of Armor|Red and Yellow", "IRONMAN|IRON-MAN|TONYSTARK"},
+	{"Wonder Woman", "The Amazonian Princess|Justice-League|Lasso of Truth", "WONDERWOMAN|DIANAPRINCE"},
+	{"Ant Man", "Ants|Pym Particles|Shrink", "ANTMAN|ANT-MAN|SCOTTLANG"},
+	{"Doctor Strange", "Doctor|Car Accident|Master of the Mystic Arts|Time Stone", "DOCTORSTRANGE|STEPHENSTRANGE"},
+	{"Hawkeye", "Bow and Arrow|Useless|Avenger", "HAWKEYE|CLINT|CLINTBARTON"},
+	{"Groot", "Guardians of the Galaxy|Plant|'I am...'", "GROOT"},
+	{"Black Panther", "Wakanda|Vibranium|King|Panther", "BLACKPANTHER|T'CHALLA"},
+	{"Deadpool", "More like Antihero|Healing Factor|Funny|Ryan Reynolds <3", "DEADPOOL|WADEWILSON|RYANREYNOLDS"},
+	{"Professor X", "Wheelchair|X-Men|Mutant|Telepath", "PROFESSORX|PROFESSORXAVIER|CHARLESXAVIER"},
+	{"Black Widow", "Red Hair (Usually)|Russian Spy|Avenger", "BLACKWIDOW|NATASHAROMANOFF"},
 }
 //make sure to trim their answer so that 'Bat man' and 'Batman' will equal.
 //First index determines which superhero, second index determines what property.
@@ -92,16 +108,14 @@ func playSuperhero() {
 	fmt.Println("Playing Category: Superheroes")
 	countdown()
 	
-	ticker := time.NewTicker(time.Second)
+	done := make(chan bool)
 
 	go func() {
 		for {
 			randomIndexValue := remainingIndexValues[rand.Intn(len(remainingIndexValues))]	//randomIndex can equal 0, 1, 2, 3. Purpose is to remove this from remainingIndexValues array after it is used.
-			
 			descriptiveWords := strings.Split(superHeroes[randomIndexValue][1], "|")
 			descriptiveWordsPrint := [3]string{} //array that holds 3 strings that are each different from descriptiveWords array. Then, it prints out to console.
 			descriptiveWordsCounter := 0
-
 			possibleAnswers := strings.Split(superHeroes[randomIndexValue][2], "|")
 
 			for {
@@ -129,12 +143,13 @@ func playSuperhero() {
 					fmt.Println(descriptiveWordsPrint[x])
 				}
 			}
+
 			reader := bufio.NewReader(os.Stdin)
 			userAnswer, error := reader.ReadString('\n')
 			var correct = false
 			if (error == nil)	{
 				for y := 0; y < len(possibleAnswers); y++	{
-					if (strings.TrimSpace(strings.ToUpper(userAnswer)) == possibleAnswers[y])	{
+					if (strings.Replace(strings.TrimSpace(strings.ToUpper(userAnswer)), " ", "", -1) == possibleAnswers[y])	{	//strips literally all white space from userAnswer to match possible answer
 						correct = true						
 						for x := 0; x < len(remainingIndexValues); x++ {	//deletes randomIndexValue number from the remainingIndexValues.
 							if (remainingIndexValues[x] == randomIndexValue)	{
@@ -145,6 +160,10 @@ func playSuperhero() {
 							}
 						}
 					}
+
+					if (strings.TrimSpace(strings.ToUpper(userAnswer)) == "EXIT")	{
+						done <- true
+					}
 				}
 
 				if (correct) {
@@ -154,18 +173,22 @@ func playSuperhero() {
 				}
 			}
 
-			if (correctAnswers == len(superHeroes) - 1)	{
+			if (correctAnswers == len(superHeroes))	{
 				fmt.Println("You got all", correctAnswers, "SuperHeroes correct! Good job!")
-				ticker.Stop()
+				done <- true
 				break
 			}
 		}
 	}()
-	time.Sleep(60 * time.Second)	//leave at 5-10 seconds initially for debug purposes.
 
-	ticker.Stop()
+	select {
+	case <- done:
+		break
+	case <- time.After(60 * time.Second):
+		break
+	}
 
-	if (correctAnswers != len(superHeroes) - 1)	{
+	if (correctAnswers != len(superHeroes))	{
 		fmt.Println("You got ", correctAnswers, " correct. Better luck next time!")
 	}
 }
