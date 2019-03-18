@@ -13,9 +13,9 @@ var categories = [2]string {
 	"SUPERHEROES", "WAIFUS",
 }
 var superHeroes = [4][3]string {
-	{"Spider-Man", "Great Responsibility|Dead Uncle|'He's a Menace!'|Red Blue and Black|Friendly Neighbourhood...|Queens|Marvel", "Spider-Man|Spiderman|Peter Parker"},
-	{"The Flash", "Red|Fast|Speedforce|DC|Forensic Scientist", "The Flash|Flash|Barry Allen|BarryAllen|Barry-Allen"},
-	{"Batman", "World's Greatest Detective|Bats|League of Shadows|Utility Belt|DC|Billionaire", "Batman|Bruce Wayne|Bruce-Wayne|BruceWayne"},
+	{"Spider-Man", "Great Responsibility|Dead Uncle|'He's a Menace!'|Red Blue and Black|Friendly Neighbourhood...|Queens|Marvel", "SPIDER-MAN|SPIDERMAN|PETERPARKER"},
+	{"The Flash", "Red|Fast|Speedforce|DC|Forensic Scientist", "THE FLASH|FLASH|BARRYALLEN|BARRY-ALLEN"},
+	{"Batman", "World's Greatest Detective|Bats|League of Shadows|Utility Belt|DC|Billionaire", "BATMAN|BRUCE-WAYNE|BRUCEWAYNE"},
 }
 //make sure to trim their answer so that 'Bat man' and 'Batman' will equal.
 //First index determines which superhero, second index determines what property.
@@ -95,11 +95,15 @@ func playSuperhero() {
 	ticker := time.NewTicker(time.Second)
 
 	go func() {
-		for i := 0; i < len(superHeroes); i++	{
+		for {
 			randomIndexValue := remainingIndexValues[rand.Intn(len(remainingIndexValues))]	//randomIndex can equal 0, 1, 2, 3. Purpose is to remove this from remainingIndexValues array after it is used.
+			
 			descriptiveWords := strings.Split(superHeroes[randomIndexValue][1], "|")
 			descriptiveWordsPrint := [3]string{} //array that holds 3 strings that are each different from descriptiveWords array. Then, it prints out to console.
 			descriptiveWordsCounter := 0
+
+			possibleAnswers := strings.Split(superHeroes[randomIndexValue][2], "|")
+
 			for {
 				line := descriptiveWords[rand.Intn(len(descriptiveWords))]
 				for x := 0; x < len(descriptiveWordsPrint); x++	{
@@ -127,28 +131,41 @@ func playSuperhero() {
 			}
 			reader := bufio.NewReader(os.Stdin)
 			userAnswer, error := reader.ReadString('\n')
+			var correct = false
 			if (error == nil)	{
-				if (userAnswer == "correct\r\n")	{	//TODO: obviously replace correct with if the userAnswer matches answers from superheroes array.
-					fmt.Println(userAnswer)
-					for x := 0; x < len(remainingIndexValues); x++ {	//deletes randomIndexValue number from the remainingIndexValues.
-						if (remainingIndexValues[x] == randomIndexValue)	{
-							remainingIndexValues[x] = remainingIndexValues[len(remainingIndexValues) - 1]
-							remainingIndexValues[len(remainingIndexValues) - 1] = -1	//-1 will ensure randomIndexValue cannot choose this.
-							remainingIndexValues = remainingIndexValues[:len(remainingIndexValues) - 1]
+				for y := 0; y < len(possibleAnswers); y++	{
+					if (strings.TrimSpace(strings.ToUpper(userAnswer)) == possibleAnswers[y])	{
+						correct = true						
+						for x := 0; x < len(remainingIndexValues); x++ {	//deletes randomIndexValue number from the remainingIndexValues.
+							if (remainingIndexValues[x] == randomIndexValue)	{
+								remainingIndexValues[x] = remainingIndexValues[len(remainingIndexValues) - 1]
+								remainingIndexValues[len(remainingIndexValues) - 1] = -1	//-1 will ensure randomIndexValue cannot choose this.
+								remainingIndexValues = remainingIndexValues[:len(remainingIndexValues) - 1]
+								correctAnswers++
+							}
 						}
 					}
-					fmt.Println(remainingIndexValues)
 				}
+
+				if (correct) {
+					fmt.Println("Correct!")
+				} else {
+					fmt.Println("Incorrect!")
+				}
+			}
+
+			if (correctAnswers == len(superHeroes) - 1)	{
+				fmt.Println("You got all", correctAnswers, "SuperHeroes correct! Good job!")
+				ticker.Stop()
+				break
 			}
 		}
 	}()
+	time.Sleep(60 * time.Second)	//leave at 5-10 seconds initially for debug purposes.
 
-	time.Sleep(3 * time.Second)	//leave at 5-10 seconds initially for debug purposes.
 	ticker.Stop()
 
-	if (correctAnswers == len(superHeroes))	{
-		fmt.Println("You got all of them correct! Good job!")
-	} else {
+	if (correctAnswers != len(superHeroes) - 1)	{
 		fmt.Println("You got ", correctAnswers, " correct. Better luck next time!")
 	}
 }
