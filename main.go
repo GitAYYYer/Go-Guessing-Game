@@ -9,8 +9,8 @@ import (
 	"math/rand"
 )
 
-var categories = [2]string {
-	"SUPERHEROES", "WAIFUS",
+var categories = [1]string {
+	"SUPERHEROES",
 }
 var superHeroes = [19][3]string {
 	{"Spider-Man", "Great Responsibility|Dead Uncle|'He's a Menace!'|Red Blue and Black|Friendly Neighbourhood...|Queens", "SPIDERMAN|SPIDER-MAN|PETERPARKER"},
@@ -25,13 +25,17 @@ var superHeroes = [19][3]string {
 	{"Iron Man", "Avenger|Billionaire Playboy|Suit of Armor|Red and Yellow", "IRONMAN|IRON-MAN|TONYSTARK"},
 	{"Wonder Woman", "The Amazonian Princess|Justice-League|Lasso of Truth", "WONDERWOMAN|DIANAPRINCE"},
 	{"Ant Man", "Ants|Pym Particles|Shrink", "ANTMAN|ANT-MAN|SCOTTLANG"},
-	{"Doctor Strange", "Doctor|Car Accident|Master of the Mystic Arts|Time Stone", "DOCTORSTRANGE|STEPHENSTRANGE"},
+	{"Doctor Strange", "Doctor|Car Accident|Master of the Mystic Arts|Time Stone", "DR.STRANGE|DRSTRANGE|DOCTORSTRANGE|STEPHENSTRANGE"},
 	{"Hawkeye", "Bow and Arrow|Useless|Avenger", "HAWKEYE|CLINT|CLINTBARTON"},
 	{"Groot", "Guardians of the Galaxy|Plant|'I am...'", "GROOT"},
 	{"Black Panther", "Wakanda|Vibranium|King|Panther", "BLACKPANTHER|T'CHALLA"},
 	{"Deadpool", "More like Antihero|Healing Factor|Funny|Ryan Reynolds <3", "DEADPOOL|WADEWILSON|RYANREYNOLDS"},
-	{"Professor X", "Wheelchair|X-Men|Mutant|Telepath", "PROFESSORX|PROFESSORXAVIER|CHARLESXAVIER"},
+	{"Professor X", "Wheelchair|X-Men|Mutant|Telepath", "PROFESSORX|PROFESSORXAVIER|CHARLESXAVIER|XAVIER"},
 	{"Black Widow", "Red Hair (Usually)|Russian Spy|Avenger", "BLACKWIDOW|NATASHAROMANOFF"},
+}
+
+var waifus = [1][3]string {
+	{"Rui Tachibana", ""},
 }
 //make sure to trim their answer so that 'Bat man' and 'Batman' will equal.
 //First index determines which superhero, second index determines what property.
@@ -101,7 +105,7 @@ func playSuperhero() {
 	var correctAnswers = 0
 	rand.Seed(time.Now().UnixNano())	//without this, the environment won't actually generate random numbers each game, and it will generate the same ones instead.
 
-	for i := 0; i < len(superHeroes) - 1; i++	{
+	for i := 0; i < len(superHeroes); i++	{
 		remainingIndexValues = append(remainingIndexValues, i)
 	}
 
@@ -185,14 +189,15 @@ func playSuperhero() {
 	case <- done:
 		break
 	case <- time.After(60 * time.Second):
+		fmt.Println("")
 		break
 	}
 
 	if (correctAnswers != len(superHeroes))	{
-		fmt.Println("You got ", correctAnswers, " correct. Better luck next time!")
+		fmt.Println("You got", correctAnswers, "correct. Better luck next time!")
 	}
 }
 
-func playWaifu() {
+func playWaifu() {	//put 5 descriptions for waifus
 	fmt.Println("Playing as Waifu")
 }
