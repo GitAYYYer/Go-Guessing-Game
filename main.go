@@ -10,7 +10,7 @@ import (
 )
 
 var categories = [2]string {
-	"SUPERHEROES", "WAIFUS",
+	"SUPERHEROES (19)", "LEAGUE OF LEGENDS (26)",
 }
 var superHeroes = [19][3]string {
 	{"Spider-Man", "Great Responsibility|Dead Uncle|'He's a Menace!'|Red Blue and Black|Friendly Neighbourhood...|Queens", "SPIDERMAN|SPIDER-MAN|PETERPARKER"},
@@ -34,24 +34,48 @@ var superHeroes = [19][3]string {
 	{"Black Widow", "Red Hair (Usually)|Russian Spy|Avenger", "BLACKWIDOW|NATASHAROMANOFF"},
 }
 
-var waifus = [1][3]string {
-	{"Rui Tachibana", ""},
+var leagueChampions = [26][3]string {
+	{"Ahri", "Assassin|Charm|Fox|POPSTARS", "AHRI"},
+	{"Akali", "Assassin|Shroud|Ionian|POPSTARS", "AKALI"},
+	{"Blitzcrank", "Support|Hook|Robot|Mana Barrier", "BLITZCRANK"},
+	{"Camille", "Piltover|Hextech Ultimatum|Scissor Legs", "CAMILLE"},
+	{"Draven", "Executioner|Noxus|Blood Rush|Spinning Axe", "DRAVEN"},
+	{"Evelynn", "Assassin|Agony's Embrace|POPSTARS|Hate Spike", "EVELYNN"},
+	{"Fizz", "Yordle|Fish|Assassin", "FIZZ"},
+	{"Graves", "Shotgun|Cigar|Beard|True Grit", "GRAVES"},
+	{"Heimerdinger", "Turrets|Hextech Rockets|Donger|UPGRADE!!!", "HEIMERDINGER"},
+	{"Irelia", "Ionian|Blade Dancer|Bladesurge", "IRELIA"},
+	{"Jhin", "FOUR|Virtuoso|Curtain Call", "JHIN"},
+	{"Kai'Sa", "POPSTARS|Daughter of the Void|Purple", "KAISA|KAI-SA|KAI'SA"},
+	{"Lucian", "Duel Wielding|Culling|Senna", "LUCIAN"},
+	{"Mordekaiser", "Lots of bugs|Master of Metal|PENTAKILL", "MORDEKAISER"},
+	{"Nasus", "D CANE|Siphoning Strike|Dog", "NASUS"},
+	{"Orianna", "Ball|Lady of Clockwork|Shockwave", "ORIANNA"},
+	{"Pyke", "Hook|Ult Reset|Bilgewater", "PYKE"},
+	{"Rakan", "Vastayan|Grand Entrance|The Quickness", "RAKAN"},
+	{"Shaco", "Jack In The Box|Hallucinate|Backstab|Jester", "SHACO"},
+	{"Teemo", "Mushroom|Yordle|Swift Scout|Captain ... On Duty!|Poison", "TEEMO"},
+	{"Urgot", "Shotgun Knees|Fear Beyond Death|Zaun", "URGOT"},
+	{"Vayne", "Tumble|Bayonetta|Silver Bolts|Demacia", "VAYNE"},
+	{"Wukong", "Monkey|Goku|Monkey King|Cyclone", "WUKONG"},
+	{"Xayah", "Feathers|ADC|Loves Rakan", "XAYAH"},
+	{"Yasuo", "Crit|Steel Tempest|'Must be Airborne!'|Last Breath", "YASUO"},
+	{"Zed", "Faker vs Ryu|Shadow|Assassin|Death Mark", "ZED"},
 }
 //make sure to trim their answer so that 'Bat man' and 'Batman' will equal.
 //First index determines which superhero, second index determines what property.
 //For 2nd array, "Name Of Hero", "Hint1|Hint2|Hint3|Hint4|Hint5, etc.", "Possible Answers", 
 
 func main() {
-	categories := [2]string {
-		"SUPERHEROES", "WAIFUS" }
-	fmt.Println("Hi, welcome to Duc's 'Go Guessing Game'! You have 1 minute to guess the character from 3 short descriptions.\nThe available categories to play are:")
+	rand.Seed(time.Now().UnixNano())	//without this, the environment won't actually generate random numbers each game, and it will generate the same ones instead.
+	fmt.Println("Hi, welcome to Duc's 'Go Guessing Game'! You have 1 minute to guess the character from 3 short descriptions.")
 	printCategories(categories)
 	fmt.Println("Type in a category below and press enter to play.")
 	scanUserCategory()
-	fmt.Println("End of game.")
 }
 
 func printCategories(categories [2]string) {
+	fmt.Println("The available categories to play are:")
 	for i := 0; i < len(categories); i++	{
 		fmt.Println(" - " + categories[i])
 	}
@@ -66,15 +90,17 @@ func scanUserCategory()	{
 		{
 		case userCategoryUp == "SUPERHEROES":
 			playSuperhero()
-			break
+			break;
 
-		case userCategoryUp == "WAIFUS":
-			playWaifu()
+		case userCategoryUp == "LEAGUE" || userCategoryUp == "LEAGUE OF LEGENDS" || userCategoryUp == "LOL":
+			playLoL()
 			break
+		
+		default:
+			fmt.Println("Oops! Try typing a valid category.")
+			scanUserCategory()
+			break;
 		}
-	} else {
-		fmt.Println("Oops! Try typing a valid category.")
-		scanUserCategory()
 	}
 }
 
@@ -103,7 +129,6 @@ func countdown() {
 func playSuperhero() {
 	var remainingIndexValues = []int {}
 	var correctAnswers = 0
-	rand.Seed(time.Now().UnixNano())	//without this, the environment won't actually generate random numbers each game, and it will generate the same ones instead.
 
 	for i := 0; i < len(superHeroes); i++	{
 		remainingIndexValues = append(remainingIndexValues, i)
@@ -198,6 +223,99 @@ func playSuperhero() {
 	}
 }
 
-func playWaifu() {	//put 5 descriptions for waifus
-	fmt.Println("Playing as Waifu")
+func playLoL() {
+	var remainingIndexValues = []int {}
+	var correctAnswers = 0
+
+	for i := 0; i < len(leagueChampions); i++	{
+		remainingIndexValues = append(remainingIndexValues, i)
+	}
+
+	fmt.Println("Playing Category: League of Legends")
+	countdown()
+	
+	done := make(chan bool)
+
+	go func() {
+		for {
+			randomIndexValue := remainingIndexValues[rand.Intn(len(remainingIndexValues))]
+			descriptiveWords := strings.Split(leagueChampions[randomIndexValue][1], "|")
+			descriptiveWordsPrint := [3]string{}
+			descriptiveWordsCounter := 0
+			possibleAnswers := strings.Split(leagueChampions[randomIndexValue][2], "|")
+
+			for {
+				line := descriptiveWords[rand.Intn(len(descriptiveWords))]
+				for x := 0; x < len(descriptiveWordsPrint); x++	{
+					if (strings.Compare(descriptiveWordsPrint[x], line) == 0)	{
+						break
+					}
+					if (x == 2)	{
+						descriptiveWordsPrint[descriptiveWordsCounter] = line
+						descriptiveWordsCounter++
+						break
+					}
+				}
+
+				if (descriptiveWordsCounter == 3) {
+					break
+				}
+			}
+
+			for x := range descriptiveWordsPrint {
+				if (x != 2)	{
+					fmt.Print(descriptiveWordsPrint[x] + ", ")
+				} else {
+					fmt.Println(descriptiveWordsPrint[x])
+				}
+			}
+
+			reader := bufio.NewReader(os.Stdin)
+			userAnswer, error := reader.ReadString('\n')
+			var correct = false
+			if (error == nil)	{
+				for y := 0; y < len(possibleAnswers); y++	{
+					if (strings.Replace(strings.TrimSpace(strings.ToUpper(userAnswer)), " ", "", -1) == possibleAnswers[y])	{	//strips literally all white space from userAnswer to match possible answer
+						correct = true						
+						for x := 0; x < len(remainingIndexValues); x++ {	//deletes randomIndexValue number from the remainingIndexValues.
+							if (remainingIndexValues[x] == randomIndexValue)	{
+								remainingIndexValues[x] = remainingIndexValues[len(remainingIndexValues) - 1]
+								remainingIndexValues[len(remainingIndexValues) - 1] = -1	//-1 will ensure randomIndexValue cannot choose this.
+								remainingIndexValues = remainingIndexValues[:len(remainingIndexValues) - 1]
+								correctAnswers++
+							}
+						}
+					}
+
+					if (strings.TrimSpace(strings.ToUpper(userAnswer)) == "EXIT")	{
+						done <- true
+					}
+				}
+
+				if (correct) {
+					fmt.Println("Correct!")
+				} else {
+					fmt.Println("Incorrect!")
+				}
+			}
+
+			if (correctAnswers == len(leagueChampions))	{
+				fmt.Println("You got all", correctAnswers, "League of Legends champions correct! Good job!")
+				done <- true
+				break
+			}
+		}
+	}()
+
+	select {
+	case <- done:
+		break
+	case <- time.After(60 * time.Second):
+		fmt.Println("")
+		break
+	}
+
+	if (correctAnswers != len(leagueChampions))	{
+		fmt.Println("You got", correctAnswers, "correct. Better luck next time!")
+	}
 }
