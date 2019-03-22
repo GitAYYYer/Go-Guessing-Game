@@ -9,8 +9,8 @@ import (
 	"math/rand"
 )
 
-var categories = [1]string {
-	"SUPERHEROES",
+var categories = [2]string {
+	"SUPERHEROES", "WAIFUS",
 }
 var superHeroes = [19][3]string {
 	{"Spider-Man", "Great Responsibility|Dead Uncle|'He's a Menace!'|Red Blue and Black|Friendly Neighbourhood...|Queens", "SPIDERMAN|SPIDER-MAN|PETERPARKER"},
