@@ -213,7 +213,7 @@ func playSuperhero() {
 	select {
 	case <- done:
 		break
-	case <- time.After(60 * time.Second):
+	case <- time.After(10 * time.Second):
 		fmt.Println("")
 		break
 	}
@@ -310,7 +310,7 @@ func playLoL() {
 	select {
 	case <- done:
 		break
-	case <- time.After(60 * time.Second):
+	case <- time.After(10 * time.Second):
 		fmt.Println("")
 		break
 	}
